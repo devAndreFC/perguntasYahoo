@@ -2,7 +2,11 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const conection = require('./database/database'); // conectando ao bd
-const Pergunta = require("./database/Pergunta"); // importando o bd
+const Pergunta = require("./database/Pergunta"); // importando o bd das perguntas
+const Resposta = require("./database/Resposta"); // importando o bd das respostas
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 conection.authenticate().then(()=>{
     console.log('Conectado ao banco de dados');
@@ -44,5 +48,21 @@ app.post('/salvarpergunta', (req, res) => {
         res.redirect("/")
     }) 
 });
+
+// ROTA DA PERGUNTA CADASTRADA
+app.get("/pergunta/:id", (req, res) => {
+    var id = req.params.id;
+    Pergunta.findOne({
+        where: {id: id}
+    }).then(pergunta =>{
+        if (pergunta != undefined){
+            res.render('pergunta', {
+                pergunta: pergunta
+            })
+        }else{
+            res.redirect('/')
+        }
+    })
+})
 
 app.listen(8080, () => {console.log('Server no ar!');});
