@@ -56,13 +56,30 @@ app.get("/pergunta/:id", (req, res) => {
         where: {id: id}
     }).then(pergunta =>{
         if (pergunta != undefined){
-            res.render('pergunta', {
-                pergunta: pergunta
-            })
+            Resposta.findAll({
+                where: {perguntaId:pergunta.id},
+                order:[["id", "DESC"]]
+            }).then(respostas =>{
+                res.render('pergunta', {
+                    pergunta: pergunta,
+                    respostas: respostas})
+                })
         }else{
             res.redirect('/')
         }
     })
 })
 
+// ROTA DE RESPONDER
+app.post('/responder', (req, res) => {
+    var corpo = req.body.corpo
+    var perguntaID = req.body.pergunta
+    
+    Resposta.create({
+        corpo: corpo,
+        perguntaId: perguntaID
+    }).then(()=>{
+        res.redirect("/pergunta/"+perguntaID)
+    })
+})
 app.listen(8080, () => {console.log('Server no ar!');});
